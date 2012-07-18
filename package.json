@@ -5,7 +5,6 @@
   "main": "main.js",
   "directories": {
     "test": "test"
-:q
   },
   "scripts": {
     "test": "node node_modules/mocha/bin/mocha --reporter spec"

@@ -1,0 +1,16 @@
+{
+  "name": "clt",
+  "version": "0.0.1",
+  "description": "Easy way to run assertions against CLI tools.",
+  "main": "main.js",
+  "directories": {
+    "test": "test"
+:q
+  },
+  "scripts": {
+    "test": "node node_modules/mocha/bin/mocha --reporter spec"
+  },
+  "devDependencies": {
+    "mocha": "~1.3.0"
+  }
+}

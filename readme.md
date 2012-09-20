@@ -71,10 +71,117 @@ describe('Testing on a wtf thing', function() {
 API
 ---
 
-> tbd
+<p>Main assertion thingy. First rough work.</p>
 
-- expect(code, fn)
-- expect(code, body, [fn])
-- expect(body, [fn])
-- end(fn)
+<p>Thx to @visionmedia, based off supertest's Runnable object:<br /><a href='https://github.com/visionmedia/supertest/blob/master/lib/Runnable.js'>https://github.com/visionmedia/supertest/blob/master/lib/Runnable.js</a></p>
+
+<pre><code>
+</code></pre>
+
+
+<p>inherits from EventEmitter</p>
+
+<pre><code>
+util.inherits(Runnable, events.EventEmitter);</code></pre>
+
+
+### Runnable.prototype.use()
+<p>Setup CLI command.</p>
+
+<pre><code>
+Runnable.prototype.use = function use(command) {
+  this._command = command;
+  return this;
+};</code></pre>
+
+
+### Runnable.prototype.expect()
+<p>Adds a new expctations to this runnable instance.</p>
+
+<h2>Examples</h2>
+
+<pre><code>.expect(0)
+.expect(0, fn)
+.expect(0, body)
+.expect('Some body')
+.expect('Some body', fn)
+</code></pre>
+
+<p>Returns the runnable.</p>
+
+<pre><code>
+Runnable.prototype.expect = function expect(a, b) {
+  var self = this;
+
+  if (typeof a === 'number') {
+    this._status = a;
+    if (b && typeof b !== 'function') this.addExpectation(b);
+    else if(typeof b === 'function') this.end(b);
+    return this;
+  }
+
+  this.addExpectation(a);
+
+  if (typeof b === 'function') this.end(b);
+
+  return this;
+};</code></pre>
+
+
+### Runnable.prototype.addExpectation()
+<p>Adds a new expectation to the list of expected result. Can be either a<br />regexp or a string, in which case direct indexOf match</p>
+
+<pre><code>
+Runnable.prototype.addExpectation = function addExpectation(match) {
+  this._expects.push(match);
+};</code></pre>
+
+
+### Runnable.prototype.prompt()
+<p>Adds a new prompt hook to the list of expected prompts, automatically<br />writes the <code>answer</code> string provided to child's stdin when the<br /><code>matcher</code> RegExp or String match a given prompt in child stdout.</p>
+
+<pre><code>
+Runnable.prototype.prompt = function prompt(matcher, answer) {
+  matcher = matcher instanceof RegExp ? matcher : new RegExp(matcher, 'i');
+  this._prompts.push({
+    matcher: matcher,
+    answer: (answer || '') + '\n'
+  });
+  return this;
+};</code></pre>
+
+
+### Runnable.prototype.end()
+<p>Defer invoking <code>.end()</code> until the command is done running.</p>
+
+<h2>Examples</h2>
+
+<pre><code>it('test thing', function(done) {
+  cli()
+    .use('thing')
+    .expect(/run thing/)
+    .end(done);
+});
+</code></pre>
+
+<p>Returns the runnable instance.</p>
+
+<pre><code>
+Runnable.prototype.end = function end(fn) {
+  var self = this;
+  fn = fn || function() {};
+
+  this.run(function(err, code, stdout, stderr) {
+    self.emit('done');
+    self.emit('end');
+
+    self.assert({
+      status: code,
+      text: (stdout || stderr),
+      err: err
+    }, fn);
+  });
+
+  return this;
+};</code></pre>
 

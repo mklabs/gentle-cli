@@ -2,6 +2,7 @@
   "name": "clt",
   "version": "1.0.0",
   "description": "CLI assertions made easy",
+  "license": "MIT",
   "main": "main.js",
   "scripts": {
     "test": "DEBUG=gentle-cli ava test/*.js",

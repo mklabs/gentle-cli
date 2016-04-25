@@ -1,19 +1,17 @@
 var spawn     = require('child_process').spawn;
 var events    = require('events');
 var util      = require('util');
-var debug     = require('debug')('clt');
+var debug     = require('debug')('gentle-cli');
 var constants = require('constants');
 
-//
-// Main assertion thingy. First rough work.
+
+// Public: Main assertion thingy
 //
 // Thx to @visionmedia, based off supertest's Runnable object:
 // https://github.com/visionmedia/supertest/blob/master/lib/Runnable.js
-//
 module.exports = Runnable;
 
-// Initialize a new `Runnable` with the given `options` Hash object.
-
+// Public: Initialize a new `Runnable` with the given `options` Hash object.
 function Runnable(cmds, options) {
   this.options = options || {};
   this._body = null;
@@ -27,14 +25,14 @@ function Runnable(cmds, options) {
 // inherits from EventEmitter
 util.inherits(Runnable, events.EventEmitter);
 
-// Setup CLI command.
+// Public: Setup CLI command.
 Runnable.prototype.use = function use(command) {
   this._command = command;
   return this;
 };
 
 
-// Adds a new expctations to this runnable instance.
+// Public: Adds a new expectation to this runnable instance.
 //
 // Examples:
 //
@@ -62,6 +60,15 @@ Runnable.prototype.expect = function expect(a, b) {
   return this;
 };
 
+// Public: Adds a new expectation to this runnable instance.
+//
+// Examples:
+//
+//    .throws(0)
+//    .throws('ENOENT')
+//    .throws(require('constants').ENOENT)
+//
+// Returns the runnable.
 Runnable.prototype.throws = function throws(errcode) {
   var code = constants[errcode];
   if (!code) {
@@ -72,8 +79,17 @@ Runnable.prototype.throws = function throws(errcode) {
   return this;
 };
 
-// Adds a new expectation to the list of expected result. Can be either a
-// regexp or a string, in which case direct indexOf match
+// Private: Adds a new expectation to the list of expected result
+//
+// Can be either a regexp or a string, in which case direct indexOf match
+//
+// Examples:
+//
+//    .throws(0)
+//    .throws('ENOENT')
+//    .throws(require('constants').ENOENT)
+//
+// Returns the runnable.
 Runnable.prototype.addExpectation = function addExpectation(match) {
   this._expects.push(match);
 };
@@ -90,7 +106,7 @@ Runnable.prototype.prompt = function prompt(matcher, answer) {
   return this;
 };
 
-// Defer invoking `.end()` until the command is done running.
+// Public: Defer invoking `.end()` until the command is done running.
 //
 // Examples:
 //
@@ -103,7 +119,7 @@ Runnable.prototype.prompt = function prompt(matcher, answer) {
 //
 // Returns a Promise.
 Runnable.prototype.end = function end(done) {
-  return new Promise(function(r, errback) {
+  var promise = new Promise(function(r, errback) {
     this.run(function(err, code, stdout, stderr) {
       this.emit('done');
       this.emit('end');
@@ -125,13 +141,28 @@ Runnable.prototype.end = function end(done) {
       });
     }.bind(this));
   }.bind(this));
+
+  promise.catch(done || function(err) {
+    debug('Error: %s', err.stack || err.message);
+  });
+
+  return promise;
 };
 
-// Add topic to current (or root). Execute defined command with arguments and
-// passed options,  case of redirect options turned on, pipe back all stdout /
-// stderr output to parent process
+// Public: Automatically invokes `end()` and register the callback.
+Runnable.prototype.then = function then(fn) {
+  return this.end().then(fn);
+};
+
+// Public: Automatically invokes `end()` and register the errback.
+Runnable.prototype.catch = function then(fn) {
+  return this.end().catch(fn);
+};
+
+// Private: Execute defined command with arguments and passed options
 //
-// @api private
+// Case of redirect options turned on, pipe back all stdout / stderr output to
+// parent process
 Runnable.prototype.run = function run(fn) {
   var self = this;
   var cmds = this._command;
@@ -174,6 +205,7 @@ Runnable.prototype.run = function run(fn) {
 
   var errcode = 0;
   child.on('error', function(err) {
+    debug('Spawn error:', err);
     errcode = err.code;
   });
 
@@ -191,15 +223,16 @@ Runnable.prototype.run = function run(fn) {
 };
 
 
-// Perform assertions and invoke `fn(err)`.
-//
-// @api private
+// Private: Perform assertions and invoke `fn(err)`.
 Runnable.prototype.assert = function assert(res, fn) {
   var status = this._status;
   var expects = this._expects;
+  var err;
 
   if (status && res.status !== status) {
-    return fn(new Error('expected ' + status + ', got ' + res.status), res);
+    err = new Error('expected ' + status + ', got ' + res.status);
+    err.code = status || 1;
+    return fn(err, res);
   }
 
   var errors = [];
@@ -218,12 +251,13 @@ Runnable.prototype.assert = function assert(res, fn) {
   });
 
   if(!errors.length) return fn(null, res);
+  err = new Error(msg);
+  err.code = status || 1;
 
   var msg = 'Expected ' + util.inspect(res.text) + '\n to match:\n';
   msg += errors.map(function(expected) {
     return ' - ' + expected;
   }).join('\n');
 
-  fn(new Error(msg), res);
+  fn(err, res);
 };
-

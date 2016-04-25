@@ -4,7 +4,8 @@
   "description": "CLI assertions made easy",
   "main": "main.js",
   "scripts": {
-    "test": "ava test/*.js"
+    "test": "DEBUG=gentle-cli ava test/*.js",
+    "docs": "tomdox test.js --json | node scripts/docs.js > api.md"
   },
   "devDependencies": {
     "ava": "^0.14.0",

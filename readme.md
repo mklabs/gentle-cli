@@ -1,31 +1,21 @@
-clt
-===
+gentle-cli
+==========
 
-**Inspired / Based off both
-[cli-easy](https://github.com/flatiron/cli-easy) and
-[supertest](https://github.com/visionmedia/supertest)**
+**Inspired / Based off both [cli-easy](https://github.com/flatiron/cli-easy) and [supertest](https://github.com/visionmedia/supertest)**
 
-> A fluent (i.e. chainable) syntax for generating vows tests for CLI applications.
-
-> HTTP assertions made easy via super-agent.
-
-Description
------------
+> CLI assertions made easy.
 
 - Struggling with testing cli tools.
 - cli-easy is super great, but designed for generating vows
-- supertest is super great, but designed to make HTTP assertions via
-  super-agent.
+- supertest is super great, but designed to make HTTP assertions via super-agent.
 
-clt is nothing more than a simple, chainable API to ease the process of
+gentle-cli is nothing more than a simple, chainable API to ease the process of
 testing CLI applications & tools.
 
-Right now, it doesn't do anything fancy and just allow you to easily
-test the exit code and stdout output, and make assertions on top of
-that.
+Right now, it doesn't do anything fancy and just allow you to easily test the
+exit code and stdout output, and make assertions on top of that.
 
-Example
--------
+## Documentation
 
 It should work with any test framework, here is an example using any
 test framework at all.
@@ -33,6 +23,17 @@ test framework at all.
 ```js
 var cli = require('clt');
 
+// promise
+cli()
+  .use('whoami')
+  .expect(0, 'A fool')
+  .then(function(res) {
+    console.log(res.status);
+    console.log(res.text);
+    console.log(res.err);
+  });
+
+// callback
 cli()
   .use('uname')
   .expect(0, 'Linux\n')
@@ -40,6 +41,35 @@ cli()
     if(err) throw err;
   });
 ```
+
+#### ava
+
+Check [gentle cli tests](./test), they're using ava:
+
+```js
+import test from 'ava';
+import cli from '..';
+import constants from 'constants';
+
+test('Testing on uname', t => {
+  return cli()
+    .use('uname')
+    .expect(0, process.platform === 'darwin' ? 'Darwin' : 'Linux')
+    .end();
+});
+
+test('Testing on a wtf thing', t => {
+  return cli()
+    .use('wtfBinary')
+    .expect(constants.ENOENT)
+    .throws('ENOENT')
+    .end();
+});
+```
+
+`cli().end()` returns a promise you can pass through ava, as well as `.then()` and `.catch()`.
+
+#### mocha
 
 Here's an example with mocha, note how you can pass done straight to any
 of the `.expect()` calls (or `.end()`):
@@ -68,120 +98,71 @@ describe('Testing on a wtf thing', function() {
 });
 ```
 
-API
----
+### API
 
-<p>Main assertion thingy. First rough work.</p>
+#### module.exports = Runnable;
 
-<p>Thx to @visionmedia, based off supertest's Runnable object:<br /><a href='https://github.com/visionmedia/supertest/blob/master/lib/Runnable.js'>https://github.com/visionmedia/supertest/blob/master/lib/Runnable.js</a></p>
+Main assertion thingy
 
-<pre><code>
-</code></pre>
-
-
-<p>inherits from EventEmitter</p>
-
-<pre><code>
-util.inherits(Runnable, events.EventEmitter);</code></pre>
+Thx to @visionmedia, based off supertest's Runnable object:
+https://github.com/visionmedia/supertest/blob/master/lib/Runnable.js
 
 
-### Runnable.prototype.use()
-<p>Setup CLI command.</p>
+#### function Runnable(cmds, options)
 
-<pre><code>
-Runnable.prototype.use = function use(command) {
-  this._command = command;
-  return this;
-};</code></pre>
+Initialize a new `Runnable` with the given `options` Hash object.
 
 
-### Runnable.prototype.expect()
-<p>Adds a new expctations to this runnable instance.</p>
+#### Runnable#use()
 
-<h2>Examples</h2>
+Setup CLI command.
 
-<pre><code>.expect(0)
+
+#### Runnable#expect()
+
+Adds a new expectation to this runnable instance.
+
+```js:
+.expect(0)
 .expect(0, fn)
 .expect(0, body)
 .expect('Some body')
 .expect('Some body', fn)
-</code></pre>
+```
+#### Runnable#throws()
 
-<p>Returns the runnable.</p>
+Adds a new expectation to this runnable instance.
 
-<pre><code>
-Runnable.prototype.expect = function expect(a, b) {
-  var self = this;
+```js:
+.throws(0)
+.throws('ENOENT')
+.throws(require('constants').ENOENT)
+```
 
-  if (typeof a === 'number') {
-    this._status = a;
-    if (b && typeof b !== 'function') this.addExpectation(b);
-    else if(typeof b === 'function') this.end(b);
-    return this;
-  }
+#### Runnable#end()
 
-  this.addExpectation(a);
+Defer invoking `.end()` until the command is done running.
 
-  if (typeof b === 'function') this.end(b);
-
-  return this;
-};</code></pre>
-
-
-### Runnable.prototype.addExpectation()
-<p>Adds a new expectation to the list of expected result. Can be either a<br />regexp or a string, in which case direct indexOf match</p>
-
-<pre><code>
-Runnable.prototype.addExpectation = function addExpectation(match) {
-  this._expects.push(match);
-};</code></pre>
-
-
-### Runnable.prototype.prompt()
-<p>Adds a new prompt hook to the list of expected prompts, automatically<br />writes the <code>answer</code> string provided to child's stdin when the<br /><code>matcher</code> RegExp or String match a given prompt in child stdout.</p>
-
-<pre><code>
-Runnable.prototype.prompt = function prompt(matcher, answer) {
-  matcher = matcher instanceof RegExp ? matcher : new RegExp(matcher, 'i');
-  this._prompts.push({
-    matcher: matcher,
-    answer: (answer || '') + '\n'
-  });
-  return this;
-};</code></pre>
-
-
-### Runnable.prototype.end()
-<p>Defer invoking <code>.end()</code> until the command is done running.</p>
-
-<h2>Examples</h2>
-
-<pre><code>it('test thing', function(done) {
+```js:
+it('test thing', function(done) {
   cli()
     .use('thing')
     .expect(/run thing/)
     .end(done);
 });
-</code></pre>
+```
 
-<p>Returns the runnable instance.</p>
+Returns a promise.
 
-<pre><code>
-Runnable.prototype.end = function end(fn) {
-  var self = this;
-  fn = fn || function() {};
+#### Runnable#then()
 
-  this.run(function(err, code, stdout, stderr) {
-    self.emit('done');
-    self.emit('end');
+Automatically invokes `end()` and register the callback.
 
-    self.assert({
-      status: code,
-      text: (stdout || stderr),
-      err: err
-    }, fn);
-  });
+Returns a promise.
 
-  return this;
-};</code></pre>
 
+#### Runnable#catch()
+
+Automatically invokes `end()` and register the errback.
+
+Returns a promise.

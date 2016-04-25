@@ -1,21 +1,18 @@
+import test from 'ava';
+import cli from '..';
+import constants from 'constants';
 
-var cli = require('..');
-
-describe('Testing on uname', function() {
-  it('should return Linux ', function(done) {
-    cli()
-      .use('uname')
-      .expect(0, process.platform === 'darwin' ? 'Darwin' : 'Linux')
-      .end(done);
-  });
+test('Testing on uname', t => {
+  return cli()
+    .use('uname')
+    .expect(0, process.platform === 'darwin' ? 'Darwin' : 'Linux')
+    .end();
 });
 
-describe('Testing on a wtf thing', function() {
-  it('should fail as expected', function(done) {
-    cli()
-      .use('wtfBinary')
-      .expect(127)
-      .end(done);
-  });
+test('Testing on a wtf thing', t => {
+  return cli()
+    .use('wtfBinary')
+    .expect(constants.ENOENT)
+    .throws('ENOENT')
+    .end();
 });
-

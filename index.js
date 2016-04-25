@@ -1,5 +1,5 @@
 
-var Test = require('./lib/test');
+var Test = require('./test');
 
 module.exports = cli;
 cli.Test = Test;

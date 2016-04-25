@@ -1,6 +1,8 @@
-var spawn = require('child_process').spawn,
-  events = require('events'),
-  util = require('util');
+var spawn     = require('child_process').spawn;
+var events    = require('events');
+var util      = require('util');
+var debug     = require('debug')('clt');
+var constants = require('constants');
 
 //
 // Main assertion thingy. First rough work.
@@ -60,6 +62,16 @@ Runnable.prototype.expect = function expect(a, b) {
   return this;
 };
 
+Runnable.prototype.throws = function throws(errcode) {
+  var code = constants[errcode];
+  if (!code) {
+    throw new Error('Invalid error code: ' +  errcode);
+  }
+
+  this.expect(code);
+  return this;
+};
+
 // Adds a new expectation to the list of expected result. Can be either a
 // regexp or a string, in which case direct indexOf match
 Runnable.prototype.addExpectation = function addExpectation(match) {
@@ -89,23 +101,30 @@ Runnable.prototype.prompt = function prompt(matcher, answer) {
 //        .end(done);
 //    });
 //
-// Returns the runnable instance.
-Runnable.prototype.end = function end(fn) {
-  var self = this;
-  fn = fn || function() {};
+// Returns a Promise.
+Runnable.prototype.end = function end(done) {
+  return new Promise(function(r, errback) {
+    this.run(function(err, code, stdout, stderr) {
+      this.emit('done');
+      this.emit('end');
 
-  this.run(function(err, code, stdout, stderr) {
-    self.emit('done');
-    self.emit('end');
+      var res = {
+        status: code,
+        text: (stdout || stderr),
+        err: err
+      };
 
-    self.assert({
-      status: code,
-      text: (stdout || stderr),
-      err: err
-    }, fn);
-  });
+      this.assert(res, function(err, res) {
+        if (err) {
+         errback(err);
+         return done && done(err);
+        }
 
-  return this;
+        r(res);
+        return done && done(null, res);
+      });
+    }.bind(this));
+  }.bind(this));
 };
 
 // Add topic to current (or root). Execute defined command with arguments and
@@ -114,17 +133,19 @@ Runnable.prototype.end = function end(fn) {
 //
 // @api private
 Runnable.prototype.run = function run(fn) {
-  var self = this,
-    cmds = this._command,
-    opts = this.options;
+  var self = this;
+  var cmds = this._command;
+  var opts = this.options;
 
   if(this._run) return fn(null, self.code, self.stdout, self.stderr);
   if(!cmds) return this.emit(new Error('Cannot run without a command. Use .use!'));
 
   cmds = cmds.split(' ');
 
-  var child = spawn(cmds.shift(), cmds, opts),
-    write = child.stdin.write.bind(child.stdin);
+  var cmd = cmds.shift();
+  debug('Spawn cmd: %s', cmd, cmds);
+  var child = spawn(cmd, cmds, opts);
+  var write = child.stdin.write.bind(child.stdin);
 
   // mark this runnable as consumed
   this._run = true;
@@ -135,7 +156,7 @@ Runnable.prototype.run = function run(fn) {
   }
 
   self.stdout = '';
-  child.stdout.setEncoding('utf8');
+  // child.stdout.setEncoding('utf8');
   child.stdout.on('data', function(chunk) {
     self.stdout += chunk;
     self.emit('data', chunk);
@@ -151,7 +172,13 @@ Runnable.prototype.run = function run(fn) {
     self.stderr += chunk;
   });
 
-  child.on('exit', function(code) {
+  var errcode = 0;
+  child.on('error', function(err) {
+    errcode = err.code;
+  });
+
+  child.on('close', function(code) {
+    code = errcode && constants[errcode] ? constants[errcode] : code;
     self.code = code;
     if(!code) return fn(null, code, self.stdout, self.stderr);
     var msg = 'Error executing "' + self._command + '". Code:' + code;
@@ -168,8 +195,8 @@ Runnable.prototype.run = function run(fn) {
 //
 // @api private
 Runnable.prototype.assert = function assert(res, fn) {
-  var status = this._status,
-    expects = this._expects;
+  var status = this._status;
+  var expects = this._expects;
 
   if (status && res.status !== status) {
     return fn(new Error('expected ' + status + ', got ' + res.status), res);
@@ -177,8 +204,8 @@ Runnable.prototype.assert = function assert(res, fn) {
 
   var errors = [];
   expects.forEach(function(expect) {
-    var isregexp = expect instanceof RegExp,
-      expected = util.inspect(expect);
+    var isregexp = expect instanceof RegExp;
+    var expected = util.inspect(expect);
 
     // regexp
     if (isregexp) {
@@ -186,7 +213,6 @@ Runnable.prototype.assert = function assert(res, fn) {
         return errors.push(expected);
       }
     } else if(!~res.text.indexOf(expect)) {
-      console.log('what', res.text, expected);
       return errors.push(expected);
     }
   });

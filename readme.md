@@ -104,7 +104,7 @@ describe('Testing on a wtf thing', function() {
 
 Main assertion thingy
 
-Thx to @visionmedia, based off supertest's Runnable object:
+Thx to @tj, based off supertest's Runnable object:
 https://github.com/visionmedia/supertest/blob/master/lib/Runnable.js
 
 

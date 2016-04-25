@@ -21,7 +21,7 @@ It should work with any test framework, here is an example using any
 test framework at all.
 
 ```js
-var cli = require('clt');
+var cli = require('gentle-cli');
 
 // promise
 cli()

@@ -1,5 +1,5 @@
 {
-  "name": "clt",
+  "name": "gentle-cli",
   "version": "1.0.1",
   "description": "CLI assertions made easy",
   "license": "MIT",

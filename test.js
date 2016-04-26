@@ -12,14 +12,13 @@ var constants = require('constants');
 module.exports = Runnable;
 
 // Public: Initialize a new `Runnable` with the given `options` Hash object.
-function Runnable(cmds, options) {
+function Runnable(options) {
   this.options = options || {};
   this._body = null;
   this._status = 0;
   this._command = '';
   this._prompts = [];
   this._expects = [];
-  this.use(cmds);
 }
 
 // inherits from EventEmitter
@@ -142,7 +141,7 @@ Runnable.prototype.end = function end(done) {
     }.bind(this));
   }.bind(this));
 
-  promise.catch(done || function(err) {
+  promise.catch(function(err) {
     debug('Error: %s', err.stack || err.message);
   });
 
@@ -251,13 +250,13 @@ Runnable.prototype.assert = function assert(res, fn) {
   });
 
   if(!errors.length) return fn(null, res);
-  err = new Error(msg);
-  err.code = status || 1;
 
   var msg = 'Expected ' + util.inspect(res.text) + '\n to match:\n';
   msg += errors.map(function(expected) {
     return ' - ' + expected;
   }).join('\n');
+  err = new Error(msg);
+  err.code = status || 1;
 
   fn(err, res);
 };

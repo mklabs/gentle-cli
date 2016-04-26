@@ -1,6 +1,6 @@
 {
   "name": "gentle-cli",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "CLI assertions made easy",
   "license": "MIT",
   "main": "main.js",

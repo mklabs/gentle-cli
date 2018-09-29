@@ -22,21 +22,21 @@ describe('gentle-cli', () => {
 
   it('Testing promise style', () =>
     cli()
-      .use('ls scripts')
+      .use('ls lib')
       .expect(0)
       .then(res => {
         assert.equal(res.status, 0);
-        assert.equal(res.text, 'docs.js\n', 'Expected return text');
+        assert.equal(res.text, 'test.js\n', 'Expected return text');
       }));
 
   it('Testing promise async style', async () => {
     const res = await cli()
-      .use('ls scripts')
+      .use('ls lib')
       .expect(0)
       .end();
 
     console.log('res', res);
     assert.equal(res.status, 0);
-    assert.equal(res.text, 'docs.js\n', 'Expected return text');
+    assert.equal(res.text, 'test.js\n', 'Expected return text');
   });
 });

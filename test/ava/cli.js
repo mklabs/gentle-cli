@@ -1,5 +1,4 @@
 import test from 'ava';
-import constants from 'constants';
 import cli from '../..';
 
 test('Testing on uname', t => {
@@ -14,10 +13,10 @@ test('Testing on uname', t => {
 test('Testing on a wtf thing', t => {
   t.plan(0);
 
+  // Expected error code is 127 as returned by /bin/sh
   return cli()
     .use('wtfBinary')
-    .expect(constants.ENOENT)
-    .throws('ENOENT')
+    .expect(127)
     .end();
 });
 
@@ -25,11 +24,11 @@ test('Testing promise style', t => {
   t.plan(2);
 
   return cli()
-    .use('ls scripts')
+    .use('ls lib')
     .expect(0)
     .then(res => {
       t.is(res.status, 0);
-      t.is(res.text, 'docs.js\n');
+      t.is(res.text, 'test.js\n');
     });
 });
 

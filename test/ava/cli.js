@@ -1,8 +1,10 @@
 import test from 'ava';
-import cli from '..';
 import constants from 'constants';
+import cli from '../..';
 
 test('Testing on uname', t => {
+  t.plan(0);
+
   return cli()
     .use('uname')
     .expect(0, process.platform === 'darwin' ? 'Darwin' : 'Linux')
@@ -10,6 +12,8 @@ test('Testing on uname', t => {
 });
 
 test('Testing on a wtf thing', t => {
+  t.plan(0);
+
   return cli()
     .use('wtfBinary')
     .expect(constants.ENOENT)
@@ -19,21 +23,35 @@ test('Testing on a wtf thing', t => {
 
 test('Testing promise style', t => {
   t.plan(2);
+
   return cli()
-    .use('ls')
+    .use('ls scripts')
     .expect(0)
-    .then((res) => {
+    .then(res => {
       t.is(res.status, 0);
-      t.is(res.text, 'cli.js\n');
+      t.is(res.text, 'docs.js\n');
     });
 });
 
 test('Testing promise style catch', t => {
   t.plan(1);
+
   return cli()
     .use('ls')
     .expect(2)
-    .catch((err) => {
+    .catch(err => {
       t.is(err.code, 2);
     });
+});
+
+test('Testing promise style async', async t => {
+  t.plan(1);
+
+  const result = await cli()
+    .use('echo foo')
+    .expect(0)
+    .end();
+
+  console.log('result', result);
+
 });

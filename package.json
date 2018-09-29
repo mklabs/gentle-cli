@@ -5,14 +5,15 @@
   "license": "MIT",
   "main": "main.js",
   "scripts": {
-    "test": "DEBUG=gentle-cli ava test/*.js",
-    "docs": "tomdox test.js --json | node scripts/docs.js > api.md"
+    "test": "npm run mocha && npm run ava",
+    "ava": "DEBUG=gentle-cli ava test/ava/*.js --verbose",
+    "mocha": "DEBUG=gentle-cli mocha test/mocha"
   },
   "devDependencies": {
-    "ava": "^0.14.0",
-    "mocha": "~1.3.0"
+    "ava": "1.0.0-beta.8",
+    "mocha": "^5.2.0"
   },
   "dependencies": {
-    "debug": "^2.2.0"
+    "debug": "^4.0.1"
   }
 }

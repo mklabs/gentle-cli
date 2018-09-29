@@ -52,6 +52,7 @@ import cli from '..';
 import constants from 'constants';
 
 test('Testing on uname', t => {
+  t.plan(0);
   return cli()
     .use('uname')
     .expect(0, process.platform === 'darwin' ? 'Darwin' : 'Linux')
@@ -59,6 +60,7 @@ test('Testing on uname', t => {
 });
 
 test('Testing on a wtf thing', t => {
+  t.plan(0);
   return cli()
     .use('wtfBinary')
     .expect(constants.ENOENT)
@@ -68,6 +70,8 @@ test('Testing on a wtf thing', t => {
 ```
 
 `cli().end()` returns a promise you can pass through ava, as well as `.then()` and `.catch()`.
+
+**Tips** Make sure to call `t.plan(0)` if you're doing assertions using `gentle-cli` and not ava. Otherwise, `ava` will fail.
 
 #### mocha
 
@@ -97,6 +101,8 @@ describe('Testing on a wtf thing', function() {
   });
 });
 ```
+
+promise example
 
 ### API
 

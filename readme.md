@@ -1,5 +1,4 @@
-gentle-cli
-==========
+# gentle-cli [![Build Status](https://travis-ci.org/mklabs/gentle-cli.svg?branch=master)](https://travis-ci.org/mklabs/gentle-cli)
 
 **Inspired / Based off both [cli-easy](https://github.com/flatiron/cli-easy) and [supertest](https://github.com/visionmedia/supertest)**
 
@@ -103,6 +102,8 @@ describe('Testing on a wtf thing', function() {
 ```
 
 promise example
+
+
 
 ### API
 

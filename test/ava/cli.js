@@ -45,13 +45,11 @@ test('Testing promise style catch', t => {
 });
 
 test('Testing promise style async', async t => {
-  t.plan(1);
-
   const result = await cli()
     .use('echo foo')
     .expect(0)
     .end();
 
-  console.log('result', result);
-
+  t.is(result.status, 0);
+  t.is(result.text, 'foo\n');
 });

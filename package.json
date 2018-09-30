@@ -10,6 +10,7 @@
     "mocha": "DEBUG=gentle-cli mocha test/mocha"
   },
   "devDependencies": {
+    "auto-changelog": "^1.8.0",
     "ava": "1.0.0-beta.8",
     "mocha": "^5.2.0"
   },

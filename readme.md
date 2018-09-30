@@ -173,3 +173,58 @@ Returns a promise.
 Automatically invokes `end()` and register the errback.
 
 Returns a promise.
+
+# Changelog
+
+## [Unreleased](https://github.com/mklabs/gentle-cli/compare/v1.0.4...HEAD)
+
+## [v1.0.4](https://github.com/mklabs/gentle-cli/compare/v1.0.3...v1.0.4) - 2018-09-30
+
+### Fixed
+
+- Switch to exec instead of spawn [`#1`](https://github.com/mklabs/gentle-cli/issues/1) [`#2`](https://github.com/mklabs/gentle-cli/issues/2)
+
+### Commits
+
+- es6: update test.js to use most of es6 syntax (thx prettier) [`cff47b0`](https://github.com/mklabs/gentle-cli/commit/cff47b0dc57ce7f2a104d4cc483b36a5506fd21c)
+- Rewrite test.js using es6 class syntax [`055059d`](https://github.com/mklabs/gentle-cli/commit/055059dae663de203d255c8762d8b46bad004519)
+- Update test, setup travis [`ee72e69`](https://github.com/mklabs/gentle-cli/commit/ee72e691f5852f34c45ce08bf0c08c00e0a935ae)
+
+## [v1.0.3](https://github.com/mklabs/gentle-cli/compare/v1.0.2...v1.0.3) - 2016-04-26
+
+### Commits
+
+- Fix asserts err return [`115f129`](https://github.com/mklabs/gentle-cli/commit/115f12983838c4664076d79a1dda03a18c2c2f40)
+
+## [v1.0.2](https://github.com/mklabs/gentle-cli/compare/v1.0.1...v1.0.2) - 2016-04-25
+
+### Commits
+
+- s/clt/gentle-cli [`5a71dae`](https://github.com/mklabs/gentle-cli/commit/5a71daeed10fe85c11e05b85b908dfe50349e8a5)
+
+## [v1.0.1](https://github.com/mklabs/gentle-cli/compare/v1.0.0...v1.0.1) - 2016-04-25
+
+### Commits
+
+- MIT [`1811d15`](https://github.com/mklabs/gentle-cli/commit/1811d158ff95bf98d7ccfa5dadf6b74f6e606e8e)
+- s/visionmedia/tj [`ce1bd1e`](https://github.com/mklabs/gentle-cli/commit/ce1bd1e0c438ddf7e8f8ebfbb259be907581f944)
+
+## [v1.0.0](https://github.com/mklabs/gentle-cli/compare/v0.0.2...v1.0.0) - 2016-04-25
+
+### Commits
+
+- Update code, implement throws and better support of node core errors [`6c22c97`](https://github.com/mklabs/gentle-cli/commit/6c22c97791299afc87b9e6f3ae13a5c58235fc5c)
+- Document api [`d7dd12f`](https://github.com/mklabs/gentle-cli/commit/d7dd12f6de46a1caec13568bd14aae8730bd4f73)
+
+## [v0.0.2](https://github.com/mklabs/gentle-cli/compare/v0.0.1...v0.0.2) - 2012-09-20
+
+### Commits
+
+- updates, adding prompt api, multiple expecs, adding API docs [`cecca5f`](https://github.com/mklabs/gentle-cli/commit/cecca5fe9211a0a755d95b5a05324537161e1a9a)
+
+## v0.0.1 - 2012-07-18
+
+### Commits
+
+- haha.. this :q thing was funny [`4dac4f7`](https://github.com/mklabs/gentle-cli/commit/4dac4f7b14b2964e986f443f6c8d06e3b6b7ac43)
+- 1st [`1bd8290`](https://github.com/mklabs/gentle-cli/commit/1bd8290f184dbce963e12b79ee319baa08b7e43c)

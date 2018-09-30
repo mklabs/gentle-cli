@@ -7,12 +7,19 @@
   "scripts": {
     "test": "npm run mocha && npm run ava",
     "ava": "DEBUG=gentle-cli ava test/ava/*.js --verbose",
-    "mocha": "DEBUG=gentle-cli mocha test/mocha"
+    "mocha": "DEBUG=gentle-cli mocha test/mocha",
+    "changelog": "auto-changelog"
   },
   "devDependencies": {
     "auto-changelog": "^1.8.0",
     "ava": "1.0.0-beta.8",
     "mocha": "^5.2.0"
+  },
+  "auto-changelog": {
+    "template": "keepachangelog",
+    "unreleased": true,
+    "commitLimit": false,
+    "ignoreCommitPattern": "changelog|readme"
   },
   "dependencies": {
     "debug": "^4.0.1"
